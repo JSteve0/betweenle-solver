@@ -34,24 +34,35 @@ function main() {
 
         const mappedValue = mapValueToRange(gameState.lowerBound, 0, range);
         let index = Math.floor(validWords.length * (mappedValue / 100));
-        //console.log("Greedy Guess " + validWords[Math.floor(index)]);
+        let uncertainty = Math.floor(validWords.length * 0.05);
+        console.log("Greedy Guess " + validWords[Math.floor(index)]);
 
         // Get a better lower bound to eliminate a lot of valid words
         if (validWords.length > 25 && index > 25 && gameState.lowerBound > gameState.upperBound) {
-            //console.log("attempting to get a better lower bound");
-            index -= 15;
+            console.log("attempting to get a better lower bound");
+            console.log("word range " + validWords.slice(index - uncertainty, index + uncertainty));
+            index -= uncertainty * (mappedValue / 100);
         }
 
         // Get a better upper bound to eliminate a lot of valid words
         if (validWords.length > 25 && index < validWords.length - 25 && gameState.lowerBound < gameState.upperBound) {
-            //console.log("attempting to get a better upper bound");
-            index += 15;
+            console.log("attempting to get a better upper bound");
+            console.log("word range " + validWords.slice(index - uncertainty, index + uncertainty));
+            index += uncertainty * (1 - (mappedValue / 100));
         }
 
-        if (validWords.length < 25 && validWords.length > 10) {
-            //console.log("cutting down the number of valid words");
-            index = Math.floor(validWords.length / 2);
+        uncertainty = Math.floor(validWords.length * 0.25);
+        if (validWords.length < 25 && validWords.length > 8) {
+            console.log("cutting down the number of valid words");
+            console.log("word range " + validWords.slice(index - uncertainty, index + uncertainty));
+            if (gameState.lowerBound > gameState.upperBound && index > 8) {
+                index -= uncertainty * (mappedValue / 100);
+            } else if (gameState.lowerBound < gameState.upperBound && index < validWords.length - 8) {
+                index -= uncertainty * (1 - (mappedValue / 100));
+            }
         }
+
+        console.log(validWords);
 
         const guess = validWords[Math.floor(index)];
 
